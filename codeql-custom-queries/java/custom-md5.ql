@@ -14,9 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- import java
-import semmle.code.java.security.MessageDigest
+/**
+ * @name Use of MD5
+ * @description Flags uses of the broken MD5 hash algorithm.
+ * @kind problem
+ * @id custom.md5-usage
+ * @problem.severity warning
+ * @precision medium
+ */
 
-from MessageDigestCall md
-where md.getAlgorithm().toLowerCase() = "md5"
-select md, "Avoid using MD5. Use SHA-256 or better."
+import java
+
+/** true if e is the string literal "MD5" (any case) */
+predicate isMd5Literal(Expr e) {
+  e instanceof StringLiteral and
+  e.(StringLiteral).getValue().toLowerCase() = "md5"
+}
+
+from MethodAccess call
+where
+  // MessageDigest.getInstance("MD5")
+  ( call.getMethod().hasQualifiedName("java.security", "MessageDigest", "getInstance") and
+    isMd5Literal(call.getArgument(0))
+  )
+  or
+  // Apache Commons Codec DigestUtils.md5*(...)
+  call.getMethod().getDeclaringType().hasQualifiedName("org.apache.commons.codec.digest", "DigestUtils") and
+  call.getMethod().getName().regexpMatch("^md5.*$")
+select call, "MD5 is a broken hash; prefer SHA-256/512 instead."
