@@ -66,7 +66,9 @@ jobs:
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
-          queries: security-and-quality, ./codeql-custom-queries/java
+          queries: ${{ matrix.language == 'java'
+                     ? '+security-and-quality, ./codeql-custom-queries/java'
+            : 'security-and-quality' } }
 
       # Try the automatic build first
       - name: Autobuild

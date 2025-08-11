@@ -13,8 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-####This file tells GitHub that this folder contains a CodeQL query pack.
+# codeql-custom-queries/java/codeql-pack.yml
 name: my-org/custom-queries-java
 version: 0.0.1
-libraryPathDependencies: codeql/java-all
 extractor: java
+dependencies:
+  codeql/java-all: "*"
+
